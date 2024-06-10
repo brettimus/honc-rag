@@ -1,0 +1,26 @@
+{
+  "name": "hono-neon-drizzle-template",
+  "scripts": {
+    "dev": "wrangler dev src/index.tsx",
+    "deploy": "wrangler deploy --minify src/index.tsx",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx migrate.ts",
+    "db:seed": "tsx seed.ts",
+    "embeddings:generate": "tsx embeddings/generate-openai.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.3",
+    "drizzle-orm": "^0.31.2",
+    "hono": "^4.4.0",
+    "marked": "^12.0.2",
+    "openai": "^4.49.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240605.0",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.22.6",
+    "postgres": "^3.4.4",
+    "tsx": "^4.11.0",
+    "wrangler": "^3.47.0"
+  }
+}
