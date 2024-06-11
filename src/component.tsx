@@ -26,18 +26,6 @@ export const SearchForm = ({ similarity, query }: { query?: string; similarity?:
     <h2 className="text-2xl font-semibold mb-4">Search</h2>
 
     <form method="get" action="/recipes/search" className="flex items-center space-x-4">
-      <label htmlFor="similarity" className="text-lg font-medium">Similarity:</label>
-      <input
-        type="number"
-        id="similarity"
-        name="similarity"
-        min="0"
-        max="1"
-        step="0.1"
-        className="w-20 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-mono"
-        defaultValue="0.4"
-        value={similarity}
-      />
       <input
         type="text"
         name="query"

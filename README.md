@@ -11,13 +11,13 @@ Install dependencies
 npm install
 ```
 
-Migrate database and create embeddings
+Migrate database and seed recipes
 ```sh
 # Set up the database
 npm run db:generate
 npm run db:migrate
 
-# This calls the script in `embeddings/generate` to create embeddings
+# This adds recipe records to the database
 npm run db:seed
 ```
 
