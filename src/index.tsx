@@ -19,8 +19,11 @@ const app = new Hono<{ Bindings: Bindings }>()
  * as well as a form for searching those recipes.
  */
 app.get('/', async (c) => {
+  // Set up the orm
   const sql = neon(c.env.DATABASE_URL)
   const db = drizzle(sql);
+
+  // Query all recipes in the database
   const allRecipes = await db.select({
     id: recipes.id,
     title: recipes.title,
@@ -31,7 +34,7 @@ app.get('/', async (c) => {
       <div className="max-w-4xl mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Recipes</h1>
         <SearchForm />
-        <h2 className="text-2xl font-semibold mb-4">Examples</h2>
+        <h2 className="text-2xl font-semibold mb-4">All Recipes</h2>
         <SearchResults results={allRecipes} />
       </div>
     </Layout>
@@ -44,23 +47,35 @@ app.get('/', async (c) => {
  * - Default to a similarity cutoff of 0.5
  */
 app.get('/recipes/search', async (c) => {
+  // Set up the orm
   const sql = neon(c.env.DATABASE_URL)
   const db = drizzle(sql);
 
+  // Parse the query parameters
   const query = c.req.query("query");
   const similarityCutoffStr = c.req.query("similarity");
+  // NOTE - The cutoff (between 0 and 1) determines how similar results can be
+  //        We default to 0.5
   const similarityCutoff = Number.parseFloat(similarityCutoffStr || "0.5") ?? 0.5;
 
-  // TODO - Improve this error case!
+  // Return an error if no query was provided
   if (!query) {
-    return c.text("No search query provided");
+    // TODO - Improve this error page!
+    return c.text("No search query provided", 422);
   }
 
-  const client = new OpenAI({
-    apiKey: c.env.OPENAI_API_KEY,
-  });
+  // Create an embedding from the user's query
+  const client = new OpenAI({ apiKey: c.env.OPENAI_API_KEY });
   const queryEmbedding = await createEmbedding(client, query);
+
+  // Craft a similarity search based on the cosine distance between:
+  // - the embedding of the user's query, and 
+  // - the embedding of each recipe
   const similarityQuery = magicSql<number>`1 - (${cosineDistance(recipes.embedding, queryEmbedding)})`;
+
+  // Search for recipes with a similarity above the cutoff
+  // - order results by their similarity score
+  // - return at a maximum 10 results
   const results = await db.select({
     id: recipes.id,
     title: recipes.title,

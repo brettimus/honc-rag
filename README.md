@@ -35,9 +35,11 @@ npm run deploy
 
 ## Configuring Neon
 
-You need your `DATABASE_URL` from the Neon dashboard, which you set as an environment variable in `.dev.vars`.
+Grab your postgres connection string from [the Neon dashboard](https://neon.tech/docs/connect/connect-from-any-app), which you set as the environment variable `DATABASE_URL` in `.dev.vars`.
 
-Alternatively, you can follow one of the scripts below. You'll need the `jq` command line utility to run these scripts.
+![Neon Dashboard Connection Modal](docs/neon-connection-string.png)
+
+Alternatively, you can follow one of the scripts below.
 
 ### Create a new Database from the command line
 
@@ -48,43 +50,47 @@ neonctl auth
 # Assuming you have a project with this name in neon
 PROJECT_NAME=recipe-search-example
 
-# Set project id because the call to `set-context` below needs it
+# Get project id because the call to `set-context` below needs it
 PROJECT_ID=$(neonctl projects list --output=json | jq --arg name "$PROJECT_NAME" '.projects[] | select(.name == $name) | .id')
 
 # Create a new database in your project
-neonctl databases create --name=yum_yum --project-id=$PROJECT_ID
+DATABASE_NAME=yum_yum
+neonctl databases create --name=$DATABASE_NAME --project-id=$PROJECT_ID
 
-# Create a `dev` db branch then set context
+# Create a `dev` db branch then set the local context file (`.neon`)
 BRANCH_NAME=dev
 neonctl branches create --name=$BRANCH_NAME
 neonctl set-context --project-id=$PROJECT_ID --branch=$BRANCH_NAME
 
 # Finally, add connection string to .dev.vars
-DATABASE_URL=$(neonctl connection-string)
+DATABASE_URL=$(neonctl connection-string --database-name=$DATABASE_NAME)
 echo -e '\nDATABASE_URL='$DATABASE_URL'\n' >> .dev.vars
 ```
 
 ### Create a new project from the command line
 
-Install the neon CLI and follow this script (you'll need the `jq` command line utility). 
+> **NOTE** You need to have a paid account to create more than one project. If you don't have a paid account, and you already set up your first Neon project, then this script will fail.
 
-> **NOTE** You need to have a paid account to create more than one project. If you don't have a paid account, and you already set up your first Neon project, then this script might fail.
+Install the [Neon CLI](https://neon.tech/docs/reference/neon-cli) and follow this script (you'll need the `jq` command line utility). 
+
+```sh
+npm i -g neonctl
+```
+
+Then, follow these commands to configure your database:
 
 ```sh
 # Authenticate with neon cli
 neonctl auth
 
 # Create project if you haven't already
-#
-# > *skip this* if you already created a project,
-# > and grab the DATABASE_URL from your dashboard
 PROJECT_NAME=recipe-search-example
 neonctl projects create --name $PROJECT_NAME --set-context
 
 # Set project id because the call to `set-context` below needs it
 PROJECT_ID=$(neonctl projects list --output=json | jq --arg name "$PROJECT_NAME" '.projects[] | select(.name == $name) | .id')
 
-# Create a `dev` db branch then set context
+# Create a `dev` db branch then set the local context file (`.neon`)
 BRANCH_NAME=dev
 neonctl branches create --name=$BRANCH_NAME
 neonctl set-context --project-id=$PROJECT_ID --branch=$BRANCH_NAME
