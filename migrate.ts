@@ -13,8 +13,6 @@ const database = drizzle(pgConnection);
 
 const main = async () => {
   try {
-    // NOTE - Neon requires you to create the `vector` extension yourself
-    await database.execute(sql`CREATE EXTENSION IF NOT EXISTS vector`)
     await migrate(database, { migrationsFolder: 'drizzle' });
     console.log('Migration complete');
     process.exit(0);

@@ -6,7 +6,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx migrate.ts",
     "db:seed": "tsx seed.ts",
-    "embeddings:generate": "tsx embeddings/generate-openai.ts"
+    "embeddings:generate": "tsx generate-embeddings.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.3",
