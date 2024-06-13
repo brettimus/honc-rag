@@ -5,13 +5,10 @@
     "deploy": "wrangler deploy --minify src/index.tsx",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx migrate.ts",
-    "db:seed": "tsx seed.ts",
-    "embeddings:generate": "tsx generate-embeddings.ts"
+    "db:seed": "tsx seed.ts"
   },
   "dependencies": {
-    "@cloudflare/ai": "^1.2.2",
     "@neondatabase/serverless": "^0.9.3",
-    "@xenova/transformers": "github:xenova/transformers.js#v3",
     "drizzle-orm": "^0.31.2",
     "hono": "^4.4.0",
     "marked": "^12.0.2",

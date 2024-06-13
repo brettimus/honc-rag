@@ -1,7 +1,6 @@
-import { Ai } from '@cloudflare/ai';
 import { Hono } from 'hono'
 import { neon } from '@neondatabase/serverless';
-import { cosineDistance, desc, gt, sql as magicSql } from 'drizzle-orm'
+import { cosineDistance, desc, eq, gt, sql as magicSql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/neon-http';
 import { recipes } from './db/schema';
 import { createEmbedding } from './embeddings';
@@ -9,7 +8,11 @@ import { Layout, SearchForm, SearchResults } from './component';
 
 type Bindings = {
   DATABASE_URL: string;
-  AI: any; // Cloudflare Workers AI
+  // Cloudflare Workers AI binding
+  // enabled in wrangler.toml with
+  // > [ai]
+  // > binding = "AI"
+  AI: Ai;
 };
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -47,7 +50,6 @@ app.get('/', async (c) => {
  * - Default to a similarity cutoff of 0.5
  */
 app.get('/recipes/search', async (c) => {
-
   // Set up the orm
   const sql = neon(c.env.DATABASE_URL)
   const db = drizzle(sql);
@@ -67,8 +69,7 @@ app.get('/recipes/search', async (c) => {
 
   // Create an embedding from the user's query
   // const queryEmbedding = await createEmbedding(query);
-  const ai = new Ai(c.env.AI);
-  const queryEmbedding = await createEmbedding(ai, query)
+  const queryEmbedding = await createEmbedding(c.env.AI, query)
 
   // Craft a similarity search based on the cosine distance between:
   // - the embedding of the user's query, and 
@@ -97,5 +98,49 @@ app.get('/recipes/search', async (c) => {
     </Layout>
   )
 });
+
+/**
+ * API helper to generate embeddings
+ *
+ * We do this via the api since we do not have access to the Cloudflare AI bindings outside of a worker
+ * and the `@cloudflare/ai` package is deprecated in favor of just using bindings.
+ */
+app.post('/api/generate-embeddings', async c => {
+  const sql = neon(c.env.DATABASE_URL)
+  const db = drizzle(sql);
+
+  const ai = c.env.AI;
+
+  const start = Date.now();
+  try {
+    const recipesToUpdate = await db.select({
+      id: recipes.id,
+      title: recipes.title
+    }).from(recipes);
+
+    for (const recipe of recipesToUpdate) {
+      const { id, title } = recipe;
+      const embedding = await createEmbedding(ai, title);
+      await db.update(recipes).set({ embedding }).where(eq(recipes.id, id));
+    }
+    const end = Date.now();
+    const minutesElapsed = ((end - start) / 1000) / 60;
+    console.log(`Embeddings created for recipes. Took ${minutesElapsed}mins`);
+
+    return c.json({
+      message: `Success! Updated ${recipesToUpdate.length} recipes with embeddings.`
+    })
+  } catch (error) {
+    console.error("Failed to create recipe embeddings", error);
+    return c.json({
+      message: "Something went wrong generating embeddings"
+    }, 500)
+  }
+})
+
+function selectAllRecipes() {
+  
+}
+
 
 export default app

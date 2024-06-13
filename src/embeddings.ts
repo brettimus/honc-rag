@@ -1,5 +1,3 @@
-import { Ai } from '@cloudflare/ai';
-
 /**
  * A few notes sabout the `bge-base-en-v1.5` embedding model
  * - Vector length for small model: 768
