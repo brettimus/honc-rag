@@ -9,6 +9,7 @@
     "embeddings:generate": "tsx generate-embeddings.ts"
   },
   "dependencies": {
+    "@cloudflare/ai": "^1.2.2",
     "@neondatabase/serverless": "^0.9.3",
     "@xenova/transformers": "github:xenova/transformers.js#v3",
     "drizzle-orm": "^0.31.2",

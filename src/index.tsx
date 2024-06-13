@@ -1,3 +1,4 @@
+import { Ai } from '@cloudflare/ai';
 import { Hono } from 'hono'
 import { neon } from '@neondatabase/serverless';
 import { cosineDistance, desc, gt, sql as magicSql } from 'drizzle-orm'
@@ -8,6 +9,7 @@ import { Layout, SearchForm, SearchResults } from './component';
 
 type Bindings = {
   DATABASE_URL: string;
+  AI: any; // Cloudflare Workers AI
 };
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -45,6 +47,7 @@ app.get('/', async (c) => {
  * - Default to a similarity cutoff of 0.5
  */
 app.get('/recipes/search', async (c) => {
+
   // Set up the orm
   const sql = neon(c.env.DATABASE_URL)
   const db = drizzle(sql);
@@ -63,7 +66,9 @@ app.get('/recipes/search', async (c) => {
   }
 
   // Create an embedding from the user's query
-  const queryEmbedding = await createEmbedding(query);
+  // const queryEmbedding = await createEmbedding(query);
+  const ai = new Ai(c.env.AI);
+  const queryEmbedding = await createEmbedding(ai, query)
 
   // Craft a similarity search based on the cosine distance between:
   // - the embedding of the user's query, and 

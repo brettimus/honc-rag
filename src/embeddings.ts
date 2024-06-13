@@ -1,29 +1,14 @@
-
-import { env, pipeline } from '@xenova/transformers'
-
-// Configuration for server runtime
-env.useBrowserCache = false;
-env.allowLocalModels = false;
-
-// env.wasm.numThreads
+import { Ai } from '@cloudflare/ai';
 
 /**
- * A few notes sabout the `gte-small` embedding model
- * - Vector length for small model: 384
+ * A few notes sabout the `bge-base-en-v1.5` embedding model
+ * - Vector length for small model: 768
  * - Max tokens for input: 512
  */
-export async function createEmbedding(input: string) {
-  // OPTIMIZE - Initialize this once and cache across ueses of createEmbedding
-  const pipe = await pipeline(
-    'feature-extraction',
-    'Supabase/gte-small',
-  );
-  const output = await pipe(input, {
-    pooling: 'mean',
-    normalize: true,
-  });
+export async function createEmbedding(client: Ai, input: string) {
+  const result = await client.run("@cf/baai/bge-base-en-v1.5", {
+    text: [input]
+  })
 
-  const embedding = Array.from(output.data);
-
-  return embedding;
+  return result.data[0];
 }
