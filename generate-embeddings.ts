@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import OpenAI from "openai";
 import { config } from 'dotenv';
 import { neon } from "@neondatabase/serverless";

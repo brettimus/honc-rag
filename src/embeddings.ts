@@ -1,7 +1,7 @@
 import type OpenAI from "openai";
 
 /**
- * A few note sabout the OpenAI embedding model "text-embedding-3-small"
+ * A few notes sabout the OpenAI embedding model "text-embedding-3-small"
  * - Vector length for small model: 1536
  * - Max tokens for input: 8191
  * - These embeddings lack knowledge of events that occurred after September 2021.
