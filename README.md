@@ -1,6 +1,6 @@
 # HONC + Vector Search
 
-This is a sample vector search app using Hono (api), Neon (postgres), Drizzle (orm), and Cloudflare workers (deployment).
+This is a sample vector search app using Hono (api), Neon (postgres), Drizzle (orm), and Cloudflare Workers (deployment).
 
 We want to be able to preform semantic search across a set of recipe titles (in `data/recipe-titles.json`).
 
@@ -26,7 +26,15 @@ Run local development server
 npm run dev
 ```
 
-Deploy to production (needs cloudflare account)
+Generate embeddings (requires Cloudflare account)
+```sh
+# Run your app
+npm run dev
+# Send a POST request to /api/generate-embeddings
+curl -X POST http://localhost:8787/api/generate-embeddings
+```
+
+Deploy to production (requires Cloudflare account)
 ```sh
 npm run deploy
 
