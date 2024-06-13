@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import { config } from 'dotenv';
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from 'drizzle-orm/neon-http';
@@ -12,10 +11,6 @@ type RecipeSelect = Pick<typeof schema.recipes.$inferSelect, 'id' | 'title'>;
 
 config({ path: '.dev.vars' });
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY is not set. Be sure to create a .dev.vars file!");
-}
-
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set. Be sure to create a .dev.vars file!");
 }
@@ -24,8 +19,6 @@ const { recipes } = schema;
 
 const sql = neon(process.env.DATABASE_URL);
 const db = drizzle(sql, { schema });
-
-const openaiClient = new OpenAI();
 
 /**
  * Main function that generates embeddings for each recipe title in our database,
@@ -63,7 +56,7 @@ async function addRecipeEmbeddings() {
  */
 async function updateRecipeEmbedding(recipe: RecipeSelect, shouldLog = false) {
   const { id, title } = recipe;
-  const embedding = await createEmbedding(openaiClient, title);
+  const embedding = await createEmbedding(title);
 
   if (shouldLog) {
     logRecipe(recipe, embedding);

@@ -1,0 +1,1 @@
+ALTER TABLE "recipes" ADD COLUMN "embedding" vector(384);

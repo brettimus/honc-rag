@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.3",
+    "@xenova/transformers": "github:xenova/transformers.js#v3",
     "drizzle-orm": "^0.31.2",
     "hono": "^4.4.0",
     "marked": "^12.0.2",

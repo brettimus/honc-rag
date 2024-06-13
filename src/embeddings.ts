@@ -1,19 +1,29 @@
-import type OpenAI from "openai";
+
+import { env, pipeline } from '@xenova/transformers'
+
+// Configuration for server runtime
+env.useBrowserCache = false;
+env.allowLocalModels = false;
+
+// env.wasm.numThreads
 
 /**
- * A few notes sabout the OpenAI embedding model "text-embedding-3-small"
- * - Vector length for small model: 1536
- * - Max tokens for input: 8191
- * - These embeddings lack knowledge of events that occurred after September 2021.
+ * A few notes sabout the `gte-small` embedding model
+ * - Vector length for small model: 384
+ * - Max tokens for input: 512
  */
-export async function createEmbedding(client: OpenAI, input: string) {
-  const embedding = await client.embeddings.create({
-    model: "text-embedding-3-small",
-    input,
-    encoding_format: "float",
+export async function createEmbedding(input: string) {
+  // OPTIMIZE - Initialize this once and cache across ueses of createEmbedding
+  const pipe = await pipeline(
+    'feature-extraction',
+    'Supabase/gte-small',
+  );
+  const output = await pipe(input, {
+    pooling: 'mean',
+    normalize: true,
   });
 
-  const output = embedding.data[0].embedding;
+  const embedding = Array.from(output.data);
 
-  return output;
+  return embedding;
 }

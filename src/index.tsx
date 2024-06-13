@@ -4,11 +4,9 @@ import { cosineDistance, desc, gt, sql as magicSql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/neon-http';
 import { recipes } from './db/schema';
 import { createEmbedding } from './embeddings';
-import OpenAI from 'openai';
 import { Layout, SearchForm, SearchResults } from './component';
 
 type Bindings = {
-  OPENAI_API_KEY: string;
   DATABASE_URL: string;
 };
 
@@ -65,8 +63,7 @@ app.get('/recipes/search', async (c) => {
   }
 
   // Create an embedding from the user's query
-  const client = new OpenAI({ apiKey: c.env.OPENAI_API_KEY });
-  const queryEmbedding = await createEmbedding(client, query);
+  const queryEmbedding = await createEmbedding(query);
 
   // Craft a similarity search based on the cosine distance between:
   // - the embedding of the user's query, and 
