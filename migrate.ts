@@ -13,11 +13,13 @@ const database = drizzle(pgConnection);
 
 const main = async () => {
   try {
+    // Enable pgvector on the postgres instance, if it is not already enabled
+    await database.execute(sql`CREATE EXTENSION IF NOT EXISTS vector;`)
     await migrate(database, { migrationsFolder: 'drizzle' });
     console.log('Migration complete');
     process.exit(0);
   } catch (error) {
-    console.error(error);
+    console.error('Migration failed', error);
     process.exit(1);
   }
 };
