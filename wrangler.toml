@@ -1,6 +1,9 @@
 name = "yum-yum-recipes"
 compatibility_date = "2023-12-01"
 
+[ai]
+binding = "AI"
+
 # [vars]
 # MY_VAR = "my-variable"
 
